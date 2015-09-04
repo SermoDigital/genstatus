@@ -6,6 +6,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"flag"
 	"fmt"
 	"log"
@@ -29,20 +30,18 @@ func main() {
 	flag.Parse()
 
 	args := ""
-	if len(os.Args) >= 1 {
+	if len(os.Args) > 1 {
 		args = os.Args[1]
 	}
 	doNotEdit := fmt.Sprintf(dne, args, "\n\n")
 
-	r, w, err := os.Pipe()
+	var buf bytes.Buffer
+
+	tmp, err := os.Create(".genstatustmpfile")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	tmp, err := os.Create(".~#" + os.Args[0])
-	if err != nil {
-		log.Fatalln(err)
-	}
 	defer func() {
 		tmp.Close()
 		os.Remove(tmp.Name())
@@ -50,8 +49,8 @@ func main() {
 
 	cmd := exec.Command("bash", "-c", scrape)
 
-	cmd.Stdout = w
-	cmd.Stderr = w
+	cmd.Stdout = &buf
+	cmd.Stderr = &buf
 
 	if err := cmd.Run(); err != nil {
 		log.Fatalln(err)
@@ -82,7 +81,7 @@ import "net/http"
 	var (
 		i    = 2
 		init = true
-		s    = bufio.NewScanner(r)
+		s    = bufio.NewScanner(&buf)
 	)
 
 	for s.Scan() {
