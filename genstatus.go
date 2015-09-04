@@ -50,10 +50,6 @@ func main() {
 
 	cmd := exec.Command("bash", "-c", scrape)
 
-	// b, err := cmd.Output()
-	// fmt.Println(string(b), err)
-	// return
-
 	cmd.Stdout = w
 	cmd.Stderr = w
 
@@ -114,6 +110,8 @@ StatusRequestHeaderFieldsTooLarge = 431
 				`)
 			}
 		}
+
+		// debug.PrintStack()
 	}
 
 	f2.WriteString(")")
